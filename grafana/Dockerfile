@@ -59,3 +59,27 @@ LABEL \
     org.label-schema.vcs-ref=${BUILD_REF} \
     org.label-schema.vcs-url="https://github.com/hassio-addons/addon-grafana" \
     org.label-schema.vendor="Community Hass.io Add-ons"
+# patch
+diff --git a/Dockerfile b/Dockerfile
+index 7404aad..bcf0ba4 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -2,6 +2,7 @@ FROM node:10-alpine AS base
+
+ ENV CHROME_BIN="/usr/bin/chromium-browser"
+ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
++ENV CXXFLAGS="-Wno-ignored-qualifiers -Wno-stringop-truncation -Wno-cast-function-type"
+
+ WORKDIR /usr/src/app
+
+@@ -16,6 +17,10 @@ RUN \
+                ca-certificates dumb-init \
+   && rm -rf /var/cache/apk/* /tmp/*
+
++RUN apk add --no-cache libc6-compat python alpine-sdk
++RUN npm install -g node-gyp
++RUN npm install --build-from-source=grpc
++
+ FROM base as build
+
+ COPY . ./
